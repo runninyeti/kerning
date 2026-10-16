@@ -11,6 +11,7 @@ const defaultIndex = "https://www.centene.com/content/dam/centene/Centene%20Corp
 func main() {
 	index := flag.String("index", defaultIndex, "Transparency in Coverage index file URL")
 	addr := flag.String("addr", ":8080", "listen address")
+	exportDir := flag.String("export", "", "write static API responses to this directory and exit")
 	flag.Parse()
 
 	s, err := load(*index)
@@ -18,6 +19,14 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("loaded %s: %d procedures, %+v", s.Source.File, len(s.Procedures), s.Counts)
+
+	if *exportDir != "" {
+		if err := s.export(*exportDir); err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("exported to %s", *exportDir)
+		return
+	}
 
 	http.HandleFunc("GET /api/rates", s.rates)
 	http.HandleFunc("GET /api/procedures", s.procedures)

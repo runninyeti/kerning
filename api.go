@@ -6,6 +6,8 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -166,6 +168,64 @@ func (s *Snapshot) lens(ein, npi string) (*Lens, map[*Provider]bool, error) {
 		}
 	}
 	return lens, providers, nil
+}
+
+// export writes what the UI needs as static files, so it can be hosted without
+// this server: every procedure with all of its rows, the procedure list, and
+// which EINs and NPIs are in the network. web/src/api.js filters and pages them.
+func (s *Snapshot) export(dir string) error {
+	if err := os.MkdirAll(filepath.Join(dir, "rates"), 0o755); err != nil {
+		return err
+	}
+	if err := writeFile(filepath.Join(dir, "procedures.json"), s.byProviders); err != nil {
+		return err
+	}
+	for code, p := range s.Procedures {
+		res := ratesResponse{
+			Source:       s.Source,
+			Procedure:    p,
+			Groups:       p.Groups,
+			Totals:       p.Totals,
+			Rows:         p.Rows,
+			Total:        len(p.Rows),
+			NetworkTotal: len(p.Rows),
+			Limit:        len(p.Rows),
+		}
+		if err := writeFile(filepath.Join(dir, "rates", code+".json"), res); err != nil {
+			return err
+		}
+	}
+
+	network := struct {
+		EINs map[string]string `json:"eins"`
+		NPIs map[int][]string  `json:"npis"`
+	}{map[string]string{}, map[int][]string{}}
+	for ein, providers := range s.ByEIN {
+		for _, e := range providers[0].EINs {
+			if e.EIN == ein {
+				network.EINs[ein] = e.Name
+			}
+		}
+	}
+	for npi, providers := range s.ByNPI {
+		for _, p := range providers {
+			for _, e := range p.EINs {
+				if slices.Contains(e.NPIs, npi) && !slices.Contains(network.NPIs[npi], e.EIN) {
+					network.NPIs[npi] = append(network.NPIs[npi], e.EIN)
+				}
+			}
+		}
+	}
+	return writeFile(filepath.Join(dir, "network.json"), network)
+}
+
+func writeFile(path string, v any) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return json.NewEncoder(f).Encode(v)
 }
 
 func page(q url.Values) (limit, offset int, err error) {

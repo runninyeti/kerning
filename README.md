@@ -21,6 +21,7 @@ My rough approach to this was:
 7. Sleep on it
 8. With fresher eyes in the morning, do a deeper audit, check for edge cases, and add some fun cleanup
 9. Ship it
+10. Realize there was a quick win way to host this on github too with a cached version of the data -> ship that too
 
 Enjoy!
 
@@ -65,6 +66,16 @@ For UI work, run `go run .` and `cd web && npm run dev` side by side. Vite proxi
 ```sh
 go test ./...
 ```
+
+### Without a server
+
+A static copy is published to GitHub Pages on every push to `main`: https://runninyeti.github.io/kerning/
+
+`go run . -export <dir>` loads the data the same way, then writes every procedure with all of its rows, the procedure
+list and the network's EINs and NPIs as JSON (about 12 MB) and exits. `.github/workflows/pages.yml` builds the UI with
+`VITE_STATIC=1`, exports into it and deploys. In that build, `web/src/api.js` reads those files and does the provider
+lens, filters, sort and paging in the browser instead of calling the API, so that logic exists twice: `api.go` and
+`api.js` have to change together.
 
 ## How it works
 

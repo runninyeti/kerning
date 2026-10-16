@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import RangeBar from './RangeBar.vue'
+import { getProcedures, getRates } from './api.js'
 
 const classes = { professional: 'Professional', institutional: 'Facility' }
 const examples = [
@@ -56,10 +57,7 @@ async function load() {
   error.value = ''
   open.value = null
   try {
-    const res = await fetch('/api/rates?' + params())
-    const body = await res.json()
-    if (!res.ok) throw new Error(body.error)
-    result.value = body
+    result.value = await getRates(params())
   } catch (e) {
     error.value = e.message
     result.value = null
@@ -104,9 +102,9 @@ function onCodeInput(e) {
 async function suggest() {
   const q = form.code
   if (q.length < 2) return
-  const res = await fetch('/api/procedures?q=' + encodeURIComponent(q))
+  const found = await getProcedures(q).catch(() => [])
   // Typing fast can return answers out of order; keep only the latest.
-  if (res.ok && q === form.code) suggestions.value = await res.json()
+  if (q === form.code) suggestions.value = found
 }
 
 function toggle(i) {
