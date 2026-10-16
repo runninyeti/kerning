@@ -8,6 +8,22 @@ It reads Centene's Transparency in Coverage files for Ambetter from Fidelis Care
 Built as a take-home: use a Transparency in Coverage index to find an in-network rate file, ingest it, and search it
 by billing code with an optional NPI or EIN.
 
+## Note from the human
+
+My rough approach to this was:
+
+1. Explore the data (where many of the [insights](#what-the-data-shows) come from)
+2. Attempt to learn about the problem space -> back into user flows (i.e. search by procedure and / or provider)
+3. Build out the data model -> ensure that the data can be reliably parsed this month (and in past months) -> establish tests / patterns to watch out for
+4. From (2), build out a quick UI/UX flow to surface the most relevant insights first and allow drilling into it
+5. Spend too many brain cycles on a name -> go with a font pun for this repo anyways
+6. Take all of the above as a "plan" and hand it off to Claude to execute -> emphasis in code decisions was on ensuring simplicity + readability (so it can be expanded by a human, or another agent, later)
+7. Sleep on it
+8. With fresher eyes in the morning, do a deeper audit, check for edge cases, and add some fun cleanup
+9. Ship it
+
+Enjoy!
+
 ## Who it's for
 
 - **A provider's contracting analyst** heading into a renegotiation: "For 45380, where does our EIN's rate sit against
