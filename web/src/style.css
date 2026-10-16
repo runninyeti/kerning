@@ -1,31 +1,18 @@
 :root {
-  --text: #1c1c1c;
-  --muted: #6b6b6b;
-  --line: #e7e4df;
-  --bg: #f7f5f1;
-  --panel: #ffffff;
-  --accent: #3157d5;
-  --accent-soft: #d5ddf8;
-  --mark: #d1462f;
-  --on-accent: #ffffff;
+  color-scheme: light dark;
+  --text: light-dark(#1c1c1c, #ecebe8);
+  --muted: light-dark(#6b6b6b, #9a9893);
+  --line: light-dark(#e7e4df, #34332f);
+  --bg: light-dark(#f7f5f1, #161614);
+  --panel: light-dark(#ffffff, #1f1e1c);
+  --accent: light-dark(#3157d5, #8ea6f5);
+  --accent-soft: light-dark(#d5ddf8, #34406b);
+  --mark: light-dark(#d1462f, #f07a62);
+  --on-accent: light-dark(#ffffff, #161614);
   font: 15px/1.5 system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
   color: var(--text);
   background: var(--bg);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #ecebe8;
-    --muted: #9a9893;
-    --line: #34332f;
-    --bg: #161614;
-    --panel: #1f1e1c;
-    --accent: #8ea6f5;
-    --accent-soft: #34406b;
-    --mark: #f07a62;
-    --on-accent: #161614;
-  }
 }
 
 body {
@@ -47,7 +34,9 @@ p { margin: 0 0 8px; }
 a { color: var(--accent); }
 small { display: block; color: var(--muted); font-size: 12px; }
 
-header p { color: var(--muted); }
+header { display: grid; grid-template-columns: 1fr auto; gap: 0 16px; align-items: center; }
+header p { color: var(--muted); grid-column: 1 / -1; }
+.theme { background: var(--panel); border-color: var(--line); color: var(--text); padding: 6px 12px; font-size: 13px; }
 
 .muted { color: var(--muted); }
 .error { color: var(--mark); }

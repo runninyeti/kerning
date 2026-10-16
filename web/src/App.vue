@@ -19,6 +19,7 @@ const result = ref(null)
 const error = ref('')
 const loading = ref(false)
 const open = ref(null)
+const dark = ref(matchMedia('(prefers-color-scheme: dark)').matches)
 
 const procedure = computed(() => result.value?.procedure)
 const groups = computed(() => result.value?.groups ?? [])
@@ -90,6 +91,16 @@ function search() {
   go({ class: '', pos: '', offset: 0 })
 }
 
+// Picking from the suggestion list searches right away; typing only suggests.
+function onCodeInput(e) {
+  const picked = !e.inputType || e.inputType === 'insertReplacementText'
+  if (picked && suggestions.value.some((s) => s.code === e.target.value.trim())) {
+    form.code = e.target.value.trim()
+    search()
+  }
+  else suggest()
+}
+
 async function suggest() {
   const q = form.code
   if (q.length < 2) return
@@ -126,7 +137,22 @@ function npiCount(provider) {
   return provider.eins.reduce((n, e) => n + (e.npis?.length ?? 0), 0)
 }
 
+function setTheme(isDark) {
+  dark.value = isDark
+  document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
+}
+
+function toggleTheme() {
+  setTheme(!dark.value)
+  try {
+    localStorage.theme = dark.value ? 'dark' : 'light'
+  } catch {}
+}
+
 onMounted(() => {
+  try {
+    if (localStorage.theme) setTheme(localStorage.theme === 'dark')
+  } catch {}
   readURL()
   load()
   window.addEventListener('popstate', () => {
@@ -139,13 +165,14 @@ onMounted(() => {
 <template>
   <header>
     <h1>kerning</h1>
+    <button type="button" class="theme" @click="toggleTheme">{{ dark ? 'Light' : 'Dark' }} mode</button>
     <p>Negotiated rates for Ambetter from Fidelis Care (NY), from Centene's price transparency files.</p>
   </header>
 
   <form @submit.prevent="search">
     <label>
       Procedure
-      <input v-model.trim="form.code" list="procedures" placeholder="Code or name, e.g. 45380 or colonoscopy" required @input="suggest">
+      <input v-model.trim="form.code" list="procedures" placeholder="Code or name, e.g. 45380 or colonoscopy" required @input="onCodeInput">
     </label>
     <datalist id="procedures">
       <option v-for="p in suggestions" :key="p.code" :value="p.code">{{ p.description || p.name || 'No description in source file' }}</option>
