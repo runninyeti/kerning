@@ -3,6 +3,12 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import RangeBar from './RangeBar.vue'
 
 const classes = { professional: 'Professional', institutional: 'Facility' }
+const examples = [
+  { code: '45380', provider: '', label: 'Colonoscopy with biopsy' },
+  { code: '99213', provider: '', label: 'Office visit' },
+  { code: '73610', provider: '', label: 'Ankle X-ray' },
+  { code: '45380', provider: '46-0857425', label: 'One surgery center against the network' },
+]
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
 const money = (n) => usd.format(n)
 
@@ -92,15 +98,28 @@ async function suggest() {
   if (res.ok && q === form.code) suggestions.value = await res.json()
 }
 
+function toggle(i) {
+  open.value = open.value === i ? null : i
+}
+
 // With a provider lens, show the business that matched rather than the group's first one.
 function shown(provider) {
   const matched = result.value.lens?.matched.map((e) => e.ein) ?? []
   return provider.eins.find((e) => matched.includes(e.ein)) ?? provider.eins[0]
 }
 
-function providers(cls, pos) {
-  const n = groups.value.find((g) => g.key === `${cls}:${pos}`).values.length
+function plural(n) {
   return n === 1 ? '1 provider' : `${n} providers`
+}
+
+function providers(cls, pos) {
+  return plural(groups.value.find((g) => g.key === `${cls}:${pos}`).values.length)
+}
+
+function tryExample(e) {
+  form.code = e.code
+  form.provider = e.provider
+  search()
 }
 
 function npiCount(provider) {
@@ -141,11 +160,24 @@ onMounted(() => {
   <p v-if="error" class="error">{{ error }}</p>
   <p v-else-if="loading && !result" class="muted">Loading…</p>
 
+  <section v-if="!result && !loading" class="intro">
+    <p>Search a billing code to see what every in-network provider is paid for it, split by fee type and setting. Add an EIN or NPI to see where one provider sits against the rest.</p>
+    <div class="examples">
+      <button v-for="e in examples" :key="e.label" type="button" @click="tryExample(e)">
+        <strong>{{ e.code }}</strong> {{ e.label }}
+      </button>
+    </div>
+  </section>
+
   <main v-if="result" :class="{ loading }">
     <section>
-      <h2>{{ procedure.code }} <span v-if="procedure.name">{{ procedure.name }}</span><span v-else class="muted">No description in source file</span></h2>
-      <p v-if="procedure.description" class="muted">{{ procedure.description }}</p>
-      <p>{{ result.network_total }} rates from {{ procedure.providers }} providers</p>
+      <h2>{{ procedure.code }} <span v-if="procedure.name" class="caps">{{ procedure.name }}</span><span v-else class="muted">No description in source file</span></h2>
+      <p v-if="procedure.description" class="muted caps">{{ procedure.description }}</p>
+      <dl class="stats">
+        <div><dt>Rates</dt><dd>{{ result.network_total }}</dd></div>
+        <div><dt>Providers</dt><dd>{{ procedure.providers }}</dd></div>
+        <div><dt>Settings</dt><dd>{{ groups.length }}</dd></div>
+      </dl>
       <p v-if="result.lens && !result.lens.matched.length" class="error">No provider with that {{ result.lens.ein ? 'EIN' : 'NPI' }} is in this network.</p>
       <p v-else-if="result.lens && !lensHasRates" class="error">{{ lensName }} is in this network but has no rate for {{ procedure.code }}.</p>
       <p v-else-if="result.lens">Showing <strong>{{ lensName }}</strong> against the network (▲).</p>
@@ -154,17 +186,19 @@ onMounted(() => {
     <section>
       <h3>Rates by setting</h3>
       <p class="muted">Each provider counts once, at its base rate: the fewest modifiers, and the highest of those.</p>
-      <div v-for="g in groups" :key="g.key" class="group">
-        <div class="group-label">
-          {{ classes[g.class] }} · {{ g.pos_label }}
-          <span class="muted">{{ g.values.length }} {{ g.values.length === 1 ? 'provider' : 'providers' }}</span>
-        </div>
+      <div class="spread spread-head muted">
+        <span>Setting</span>
+        <span class="axis"><span>$0</span><span>{{ money(scale) }}</span></span>
+        <span class="num">Median</span>
+      </div>
+      <div v-for="g in groups" :key="g.key" class="spread">
+        <div>{{ classes[g.class] }} · {{ g.pos_label }}<small>{{ plural(g.values.length) }}</small></div>
         <RangeBar :group="g" :scale="scale" />
-        <div class="muted">
-          <template v-if="g.values.length >= 5">median {{ money(g.median) }} · {{ money(g.min) }} to {{ money(g.max) }}</template>
-          <template v-else>{{ g.values.map(money).join(', ') }}</template>
-          <span v-for="m in g.lens_marks" :key="m.rate" class="lens"> · ▲ {{ money(m.rate) }}, above {{ m.percentile }}% of providers</span>
+        <div class="num">
+          {{ money(g.median) }}
+          <small>{{ g.values.length >= 5 ? `${money(g.min)} – ${money(g.max)}` : g.values.map(money).join(', ') }}</small>
         </div>
+        <div v-for="m in g.lens_marks" :key="m.rate" class="lens">▲ {{ money(m.rate) }}, above {{ m.percentile }}% of providers</div>
       </div>
     </section>
 
@@ -183,16 +217,16 @@ onMounted(() => {
     <section>
       <h3>Rates</h3>
       <div class="filters">
-        <select :value="filters.class" @change="go({ class: $event.target.value, offset: 0 })">
+        <select aria-label="Fee type" :value="filters.class" @change="go({ class: $event.target.value, offset: 0 })">
           <option value="">All fee types</option>
           <option value="professional">Professional</option>
           <option value="institutional">Facility</option>
         </select>
-        <select :value="filters.pos" @change="go({ pos: $event.target.value, offset: 0 })">
+        <select aria-label="Setting" :value="filters.pos" @change="go({ pos: $event.target.value, offset: 0 })">
           <option value="">All settings</option>
           <option v-for="[pos, label] in settings" :key="pos" :value="pos">{{ label }}</option>
         </select>
-        <select :value="filters.sort" @change="go({ sort: $event.target.value, offset: 0 })">
+        <select aria-label="Sort" :value="filters.sort" @change="go({ sort: $event.target.value, offset: 0 })">
           <option value="rate">Lowest rate</option>
           <option value="-rate">Highest rate</option>
           <option value="provider">Provider name</option>
@@ -202,23 +236,23 @@ onMounted(() => {
       <p v-if="!result.rows.length" class="muted">No rates match.</p>
       <table v-else>
         <thead>
-          <tr><th>Provider</th><th>Setting</th><th>Rate</th><th>Above</th><th>NPIs</th></tr>
+          <tr><th>Provider</th><th>Setting</th><th class="num">Rate</th><th class="num">Above</th><th class="num">NPIs</th></tr>
         </thead>
         <tbody>
           <template v-for="(r, i) in result.rows" :key="i">
-            <tr class="row" @click="open = open === i ? null : i">
+            <tr class="row" tabindex="0" :aria-expanded="open === i" @click="toggle(i)" @keydown.enter="toggle(i)" @keydown.space.prevent="toggle(i)">
               <td data-label="Provider">
                 {{ shown(r.provider).name }}
                 <span v-if="r.provider.eins.length > 1" class="muted">+{{ r.provider.eins.length - 1 }} more</span>
                 <small>EIN {{ shown(r.provider).ein }}</small>
               </td>
               <td data-label="Setting">{{ labels[r.group] }}</td>
-              <td data-label="Rate">
+              <td data-label="Rate" class="num">
                 {{ money(r.rate) }}
                 <small v-if="r.modifiers?.length">modifier {{ r.modifiers.join(', ') }}</small>
               </td>
-              <td data-label="Above">{{ r.percentile }}%<small v-if="!r.base">not base rate</small></td>
-              <td data-label="NPIs">{{ npiCount(r.provider) }}</td>
+              <td data-label="Above" class="num">{{ r.percentile }}%<small v-if="!r.base">not base rate</small></td>
+              <td data-label="NPIs" class="num">{{ npiCount(r.provider) }}</td>
             </tr>
             <tr v-if="open === i" class="detail">
               <td colspan="5">
