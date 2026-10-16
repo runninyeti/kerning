@@ -17,6 +17,21 @@ by billing code with an optional NPI or EIN.
 
 This is individual-market data, so for an employer it shows the shape of the analysis, not rates they can buy.
 
+## What the data shows
+
+All from this file, and all one search away in the app:
+
+- **Telehealth is half the price of an office visit.** An established-patient visit (99213) has a median professional
+  rate of $51 by telehealth against $110 in an office (`?code=99213`).
+- **A hospital charges twice what a community clinic does for the same visit.** The facility fee for 99213 has a median
+  of $326 at a hospital outpatient department against $163 at a community health center.
+- **Facility fees vary far more than doctors' fees.** For a colonoscopy with biopsy (45380), 45 surgery centers are paid
+  between $227 and $829 for the facility, a 3.7× spread (`?code=45380`).
+- **The same doctor's fee changes with the setting.** The professional rate for 45380 has a median of about $200 at a
+  surgery center against $424 in an office, where the doctor also bears the practice's costs.
+- **Most of the published file is repetition.** Counting each place of service separately, 187,866 of 196,152 price
+  rows are exact copies. Counting rates straight from the file overstates the network about 24×.
+
 ## Run it
 
 Needs Go 1.22+ and Node 20.19+ (Vite 8).
