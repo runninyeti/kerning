@@ -115,7 +115,7 @@ onMounted(() => {
       <input v-model.trim="form.code" list="procedures" placeholder="Code or name, e.g. 45380 or colonoscopy" required @input="suggest">
     </label>
     <datalist id="procedures">
-      <option v-for="p in suggestions" :key="p.code" :value="p.code">{{ p.name || 'No description in source file' }}</option>
+      <option v-for="p in suggestions" :key="p.code" :value="p.code">{{ p.description || p.name || 'No description in source file' }}</option>
     </datalist>
     <label>
       Provider

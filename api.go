@@ -100,7 +100,7 @@ func (s *Snapshot) rates(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// procedures suggests codes by code prefix or name, most widely contracted first.
+// procedures suggests codes by code prefix, name or description, most widely contracted first.
 func (s *Snapshot) procedures(w http.ResponseWriter, r *http.Request) {
 	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
 	if q == "" {
@@ -109,7 +109,9 @@ func (s *Snapshot) procedures(w http.ResponseWriter, r *http.Request) {
 	}
 	matches := []*Procedure{}
 	for _, p := range s.byProviders {
-		if strings.HasPrefix(strings.ToLower(p.Code), q) || strings.Contains(strings.ToLower(p.Name), q) {
+		if strings.HasPrefix(strings.ToLower(p.Code), q) ||
+			strings.Contains(strings.ToLower(p.Name), q) ||
+			strings.Contains(strings.ToLower(p.Description), q) {
 			matches = append(matches, p)
 		}
 		if len(matches) == 10 {
