@@ -5,6 +5,9 @@ against the rest of the network.
 
 It reads Centene's Transparency in Coverage files for Ambetter from Fidelis Care (NY individual market, 88 plans).
 
+Built as a take-home: use a Transparency in Coverage index to find an in-network rate file, ingest it, and search it
+by billing code with an optional NPI or EIN.
+
 ## Who it's for
 
 - **A provider's contracting analyst** heading into a renegotiation: "For 45380, where does our EIN's rate sit against
