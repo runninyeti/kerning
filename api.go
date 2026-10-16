@@ -153,7 +153,7 @@ func (s *Snapshot) lens(ein, npi string) (*Lens, map[*Provider]bool, error) {
 	}
 
 	n, err := strconv.Atoi(npi)
-	if err != nil || len(npi) != 10 {
+	if err != nil || len(npi) != 10 || strings.Trim(npi, "0123456789") != "" {
 		return nil, nil, errors.New("npi must be 10 digits")
 	}
 	lens.NPI = npi

@@ -20,6 +20,7 @@ const scale = computed(() => Math.max(...groups.value.map((g) => g.max)))
 const labels = computed(() => Object.fromEntries(groups.value.map((g) => [g.key, `${classes[g.class]} · ${g.pos_label}`])))
 const settings = computed(() => [...new Map(groups.value.map((g) => [g.pos, g.pos_label]))])
 const lensName = computed(() => result.value?.lens?.matched.map((e) => e.name).join(', '))
+const lensHasRates = computed(() => groups.value.some((g) => g.lens_marks?.length))
 
 function params() {
   const p = new URLSearchParams({ code: form.code })
@@ -91,6 +92,17 @@ async function suggest() {
   if (res.ok && q === form.code) suggestions.value = await res.json()
 }
 
+// With a provider lens, show the business that matched rather than the group's first one.
+function shown(provider) {
+  const matched = result.value.lens?.matched.map((e) => e.ein) ?? []
+  return provider.eins.find((e) => matched.includes(e.ein)) ?? provider.eins[0]
+}
+
+function providers(cls, pos) {
+  const n = groups.value.find((g) => g.key === `${cls}:${pos}`).values.length
+  return n === 1 ? '1 provider' : `${n} providers`
+}
+
 function npiCount(provider) {
   return provider.eins.reduce((n, e) => n + (e.npis?.length ?? 0), 0)
 }
@@ -135,6 +147,7 @@ onMounted(() => {
       <p v-if="procedure.description" class="muted">{{ procedure.description }}</p>
       <p>{{ result.network_total }} rates from {{ procedure.providers }} providers</p>
       <p v-if="result.lens && !result.lens.matched.length" class="error">No provider with that {{ result.lens.ein ? 'EIN' : 'NPI' }} is in this network.</p>
+      <p v-else-if="result.lens && !lensHasRates" class="error">{{ lensName }} is in this network but has no rate for {{ procedure.code }}.</p>
       <p v-else-if="result.lens">Showing <strong>{{ lensName }}</strong> against the network (▲).</p>
     </section>
 
@@ -162,7 +175,7 @@ onMounted(() => {
         <div v-for="t in result.totals" :key="t.pos" class="total">
           <div>{{ t.pos_label }}</div>
           <strong>{{ money(t.estimate) }}</strong>
-          <div class="muted">{{ money(t.professional) }} + {{ money(t.institutional) }}</div>
+          <div class="muted">{{ money(t.professional) }} ({{ providers('professional', t.pos) }}) + {{ money(t.institutional) }} ({{ providers('institutional', t.pos) }})</div>
         </div>
       </div>
     </section>
@@ -195,9 +208,9 @@ onMounted(() => {
           <template v-for="(r, i) in result.rows" :key="i">
             <tr class="row" @click="open = open === i ? null : i">
               <td data-label="Provider">
-                {{ r.provider.eins[0].name }}
+                {{ shown(r.provider).name }}
                 <span v-if="r.provider.eins.length > 1" class="muted">+{{ r.provider.eins.length - 1 }} more</span>
-                <small>EIN {{ r.provider.eins[0].ein }}</small>
+                <small>EIN {{ shown(r.provider).ein }}</small>
               </td>
               <td data-label="Setting">{{ labels[r.group] }}</td>
               <td data-label="Rate">
@@ -226,7 +239,7 @@ onMounted(() => {
 
       <div v-if="result.total > result.limit" class="pager">
         <button :disabled="result.offset === 0" @click="go({ offset: Math.max(0, result.offset - result.limit) })">Previous</button>
-        <span>{{ result.offset + 1 }}–{{ Math.min(result.offset + result.limit, result.total) }} of {{ result.total }}</span>
+        <span>{{ result.rows.length ? `${result.offset + 1}–${result.offset + result.rows.length}` : 0 }} of {{ result.total }}</span>
         <button :disabled="result.offset + result.limit >= result.total" @click="go({ offset: result.offset + result.limit })">Next</button>
       </div>
     </section>

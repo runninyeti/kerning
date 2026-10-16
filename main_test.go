@@ -62,6 +62,7 @@ func TestRates(t *testing.T) {
 		{"/api/rates?code=45380&ein=46-0857425", http.StatusOK, 1},
 		{"/api/rates?code=45380&class=professional&limit=2", http.StatusOK, 2},
 		{"/api/rates?code=45380&ein=123", http.StatusBadRequest, 0},
+		{"/api/rates?code=45380&npi=%2B123456789", http.StatusBadRequest, 0},
 		{"/api/rates?code=45380&class=doctor", http.StatusBadRequest, 0},
 		{"/api/rates?code=99999", http.StatusNotFound, 0},
 		{"/api/rates", http.StatusBadRequest, 0},
