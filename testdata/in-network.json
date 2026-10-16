@@ -1,0 +1,69 @@
+{
+  "reporting_entity_name": "Centene Management Company LLC",
+  "reporting_entity_type": "Third Party Administrator",
+  "version": "2.0.0",
+  "last_updated_on": "2026-10-06",
+  "provider_references": [
+    {"provider_group_id": 244, "network_name": [], "provider_groups": [{"npi": [1760657183], "tin": {"type": "ein", "value": "47-4414949", "business_name": "George Apergis MD PC"}}]},
+    {"provider_group_id": 245, "network_name": [], "provider_groups": [{"npi": [1245234681, 1669566089], "tin": {"type": "ein", "value": "14-1556189", "business_name": "Saratoga Schenectady Gastroenterology Associates PC"}}]},
+    {"provider_group_id": 246, "network_name": [], "provider_groups": [{"npi": [1760657183, 1275697161, 1760429294], "tin": {"type": "ein", "value": "13-5562308", "business_name": "New York University dba NYU School of Medicine Faculty"}}]},
+    {"provider_group_id": 256, "network_name": [], "provider_groups": [{"npi": [1689059222], "tin": {"type": "ein", "value": "46-5647464", "business_name": "Goldstep Ambulatory Surgery Center, LLC"}}]},
+    {"provider_group_id": 258, "network_name": [], "provider_groups": [{"npi": [1174873780], "tin": {"type": "ein", "value": "46-0857425", "business_name": "Yorkville Endoscopy, LLC"}}]},
+    {"provider_group_id": 623, "network_name": [], "provider_groups": [{"npi": [0, 1073535902, 1467551002], "tin": {"type": "ein", "value": "11-6000464", "business_name": "Suffolk County Department of Health Services"}}, {"npi": [0, 1245309624, 1700965415], "tin": {"type": "ein", "value": "13-1624000", "business_name": "Federation Employment & Guidance Services, Inc."}}]}
+  ],
+  "in_network": [
+    {
+      "negotiation_arrangement": "ffs",
+      "name": "COLONOSCOPY AND BIOPSY",
+      "billing_code_type": "CPT",
+      "billing_code_type_version": "2022",
+      "billing_code": "45380",
+      "description": "COLONOSCOPY, FLEXIBLE; WITH BIOPSY, SINGLE OR MULTIPLE",
+      "negotiated_rates": [
+        {"negotiated_prices": [{"negotiated_type": "negotiated", "negotiated_rate": 424.18, "expiration_date": "9999-12-31", "service_code": ["11"], "billing_class": "professional", "billing_code_modifier": ["PT"], "setting": "outpatient"}], "provider_references": [244]},
+        {"negotiated_prices": [{"negotiated_type": "negotiated", "negotiated_rate": 154.03, "expiration_date": "9999-12-31", "service_code": ["24"], "billing_class": "professional", "billing_code_modifier": ["PT"], "setting": "outpatient"}], "provider_references": [245]},
+        {"negotiated_prices": [{"negotiated_type": "negotiated", "negotiated_rate": 268.01, "expiration_date": "9999-12-31", "service_code": ["22", "19"], "billing_class": "professional", "billing_code_modifier": ["33", "XS"], "setting": "outpatient"}, {"negotiated_type": "negotiated", "negotiated_rate": 735.24, "expiration_date": "9999-12-31", "service_code": ["11"], "billing_class": "professional", "billing_code_modifier": ["XS"], "setting": "outpatient"}], "provider_references": [246]}
+      ]
+    },
+    {
+      "negotiation_arrangement": "ffs",
+      "name": "INJECTION EYE DRUG",
+      "billing_code_type": "RC",
+      "billing_code_type_version": "2022",
+      "billing_code": "490",
+      "description": "INTRAVITREAL INJECTION OF A PHARMACOLOGIC AGENT (SEPARATE PROCEDURE)",
+      "negotiated_rates": [
+        {"provider_references": [256], "negotiated_prices": [{"negotiated_type": "negotiated", "negotiated_rate": 627.27, "expiration_date": "9999-12-31", "service_code": ["24"], "billing_class": "institutional", "additional_information": "43239", "setting": "outpatient"}]},
+        {"provider_references": [258], "negotiated_prices": [{"negotiated_type": "negotiated", "negotiated_rate": 556.72, "expiration_date": "9999-12-31", "service_code": ["24"], "billing_class": "institutional", "additional_information": "43239", "setting": "outpatient"}, {"negotiated_type": "negotiated", "negotiated_rate": 247.85, "expiration_date": "9999-12-31", "service_code": ["24"], "billing_class": "institutional", "additional_information": "45380", "setting": "outpatient"}]}
+      ]
+    },
+    {
+      "negotiation_arrangement": "ffs",
+      "name": "REPAIR RADIUS OR ULNA",
+      "billing_code_type": "RC",
+      "billing_code_type_version": "2022",
+      "billing_code": "490",
+      "description": "REPAIR OF NONUNION OR MALUNION, RADIUS OR ULNA; WITHOUT GRAFT (EG, COMPRESSION TECHNIQUE)",
+      "negotiated_rates": [
+        {"provider_references": [256], "negotiated_prices": [{"negotiated_type": "negotiated", "negotiated_rate": 627.27, "expiration_date": "9999-12-31", "service_code": ["24"], "billing_class": "institutional", "additional_information": "43239", "setting": "outpatient"}]},
+        {"provider_references": [258], "negotiated_prices": [{"negotiated_type": "negotiated", "negotiated_rate": 556.72, "expiration_date": "9999-12-31", "service_code": ["24"], "billing_class": "institutional", "additional_information": "43239", "setting": "outpatient"}, {"negotiated_type": "negotiated", "negotiated_rate": 247.85, "expiration_date": "9999-12-31", "service_code": ["24"], "billing_class": "institutional", "additional_information": "45380", "setting": "outpatient"}]}
+      ]
+    },
+    {
+      "negotiation_arrangement": "ffs",
+      "name": "DRUG TEST PRSMV DIR OPT OBS",
+      "billing_code_type": "CPT",
+      "billing_code_type_version": "2022",
+      "billing_code": "80305",
+      "description": "DRUG TEST(S), PRESUMPTIVE, ANY NUMBER OF DRUG CLASSES, ANY NUMBER OF DEVICES OR PROCEDURES; CAPABLE",
+      "negotiated_rates": [
+        {"negotiated_prices": [{"negotiated_type": "negotiated", "negotiated_rate": 5.3, "expiration_date": "9999-12-31", "service_code": ["11"], "billing_class": "professional", "billing_code_modifier": ["QW"], "setting": "outpatient"}], "provider_references": [623]}
+      ]
+    },
+    {
+      "billing_code_type": "CPT",
+      "billing_code": 99213,
+      "negotiated_rates": "oops"
+    }
+  ]
+}
