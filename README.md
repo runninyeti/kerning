@@ -16,7 +16,7 @@ This is individual-market data, so for an employer it shows the shape of the ana
 
 ## Run it
 
-Needs Go 1.22+ and Node 20+.
+Needs Go 1.22+ and Node 20.19+ (Vite 8).
 
 ```sh
 cd web && npm install && npm run build && cd ..

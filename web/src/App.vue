@@ -84,9 +84,11 @@ function search() {
 }
 
 async function suggest() {
-  if (form.code.trim().length < 2) return
-  const res = await fetch('/api/procedures?q=' + encodeURIComponent(form.code))
-  if (res.ok) suggestions.value = await res.json()
+  const q = form.code
+  if (q.length < 2) return
+  const res = await fetch('/api/procedures?q=' + encodeURIComponent(q))
+  // Typing fast can return answers out of order; keep only the latest.
+  if (res.ok && q === form.code) suggestions.value = await res.json()
 }
 
 function npiCount(provider) {

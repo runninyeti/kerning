@@ -55,6 +55,10 @@ func (s *Snapshot) rates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	class, pos := q.Get("class"), q.Get("pos")
+	if class != "" && class != "professional" && class != "institutional" {
+		writeError(w, http.StatusBadRequest, "class must be professional or institutional")
+		return
+	}
 
 	groups := slices.Clone(p.Groups)
 	rows := []Row{}
