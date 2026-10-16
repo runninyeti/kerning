@@ -38,6 +38,7 @@ func TestBuild(t *testing.T) {
 		{"office group has one base rate per provider", len(colonoscopy.Groups[0].Values), 2},
 		{"office median", colonoscopy.Groups[0].Median, (424.18 + 735.24) / 2},
 		{"surgery center total adds doctor and facility medians", colonoscopy.Totals[0].Estimate, 154.03 + 247.85},
+		{"no totals encodes as [] not null", egd.Totals != nil, true},
 	}
 	for _, tt := range tests {
 		if tt.got != tt.want {

@@ -322,7 +322,7 @@ func build(m *mrfFile) *Snapshot {
 	for _, ref := range m.Refs {
 		p := &Provider{Ref: ref.ID}
 		for _, g := range ref.Groups {
-			e := EIN{EIN: g.TIN.Value, Name: g.TIN.Name}
+			e := EIN{EIN: g.TIN.Value, Name: g.TIN.Name, NPIs: []int{}}
 			for _, npi := range g.NPIs {
 				// NPIs are 10 digits; 0 shows up as a placeholder.
 				if npi < 1_000_000_000 || npi > 9_999_999_999 {
@@ -399,7 +399,7 @@ func build(m *mrfFile) *Snapshot {
 							Class:     price.Class,
 							POS:       pos,
 							Rate:      price.Rate,
-							Modifiers: price.Modifiers,
+							Modifiers: append([]string{}, price.Modifiers...),
 							Source:    RowSource{Type: item.Type, Code: item.Code, Info: price.Info, POS: price.POS},
 						})
 						s.Counts.Rows++
@@ -501,6 +501,7 @@ func aggregate(p *Procedure) {
 		return len(a.Values) > len(b.Values) || len(a.Values) == len(b.Values) && a.Key < b.Key
 	})
 
+	p.Totals = []Total{}
 	for _, g := range p.Groups {
 		if g.Class != "institutional" {
 			continue
